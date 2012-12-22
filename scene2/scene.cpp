@@ -3,95 +3,94 @@
 #include "scene.h"
 #include "mainWindow.h"
 
+using namespace scene;
+
 MScene::MScene(QObject *parent)
-    : QGraphicsScene(parent)
+	: QGraphicsScene(parent)
 {
-    mItem = NULL;
-    mdMouse.setX(0);
-    mdMouse.setY(0);
+	mItem = NULL;
+	mMouseDeltaPos.setX(0);
+	mMouseDeltaPos.setY(0);
+	mX1 = 0;
+	mY1 = 0;
+	mPenColor = Qt::black;
 }
 
 void MScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
-    if ((getmAddItem() == 1) || (getmAddItem() == 2)) {
-        if (getmAddItem() == 1) {
-            x1 = 0;
-            y1 = 0;
-            w1 = 50;
-            h1 = 60;
-            mPenColor = Qt::black;
-            mBrushColor = Qt::blue;
-        } else if (getmAddItem() == 2) {
-            x1 = 0; y1 = 0; w1 = 100; h1 = 70; mPenColor = Qt::black;
-            mBrushColor = Qt::red;
-        }
+	if ((itemToAdd() == 1) || (itemToAdd() == 2)) {
+		if (itemToAdd() == 1) {
+			mWidth1 = 50;
+			mHeight1 = 60;
+			mBrushColor = Qt::blue;
+		} else if (itemToAdd() == 2) {
+			mWidth1 = 100;
+			mHeight1 = 70;
+			mBrushColor = Qt::red;
+		}
 
-        QGraphicsRectItem * mItem2 = new QGraphicsRectItem(0, this);
+		QGraphicsRectItem * currentItem = new QGraphicsRectItem(0, this);
 
-        mItem2->setRect(QRectF(x1, y1, w1, h1));
-        mItem2->setPos(mouseEvent->scenePos());
-        mItem2->setPen(QPen(mPenColor));
-        mItem2->setBrush(QBrush(mBrushColor));
-        mItem2->setFlag(QGraphicsItem::ItemIsMovable, true);
-        mItem2->setFlag(QGraphicsItem::ItemIsSelectable, true);
+		currentItem->setRect(QRectF(mX1, mY1, mWidth1, mHeight1));
+		currentItem->setPos(mouseEvent->scenePos());
+		currentItem->setPen(QPen(mPenColor));
+		currentItem->setBrush(QBrush(mBrushColor));
+		currentItem->setFlag(QGraphicsItem::ItemIsMovable, true);
+		currentItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
-        if ((this->collidingItems(mItem2).isDetached())
-                || (sceneRect().contains(mouseEvent->scenePos().x() + w1
-                                         , mouseEvent->scenePos().y() + h1))==false)
-        {
-            this->removeItem(mItem2);
-            delete mItem2;
-        } else {
-            this->addItem(mItem2);
-            this->setmAddItem(0);
-        }
-      //  this->setmAddItem(0);
+		if ((this->collidingItems(currentItem).isDetached())
+			|| !(sceneRect().contains(mouseEvent->scenePos().x() + mWidth1
+			, mouseEvent->scenePos().y() + mHeight1)))
+		{
+			this->removeItem(currentItem);
+			delete currentItem;
+		} else {
+			this->addItem(currentItem);
+			this->setItemToAdd(0);
+		}
 
-    } else {
-        if (itemAt(mouseEvent->scenePos())) {
-            mItem = (QGraphicsRectItem *) itemAt(mouseEvent->scenePos());
-            mdMouse = mItem->scenePos() - mouseEvent->scenePos();
-        }
-    }
-    QGraphicsScene::mousePressEvent(mouseEvent);
+	} else {
+		if (itemAt(mouseEvent->scenePos())) {
+			mItem = static_cast<QGraphicsRectItem *>(itemAt(mouseEvent->scenePos()));
+			mMouseDeltaPos = mItem->scenePos() - mouseEvent->scenePos();
+		}
+	}
+	QGraphicsScene::mousePressEvent(mouseEvent);
 }
 
 void MScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
-    if (mItem) {
-        QPointF old = mItem->scenePos();
-        QPointF oldm = mouseEvent->scenePos();
-        mItem->setPos(mouseEvent->scenePos() + mdMouse);
+	if (mItem) {
+		QPointF const old = mItem->scenePos();
+		mItem->setPos(mouseEvent->scenePos() + mMouseDeltaPos);
 
-        if ((this->collidingItems(mItem).isDetached())
-             || !(sceneRect().contains(
-                     mItem->scenePos().x() + mItem->rect().width(),
-                     mItem->scenePos().y() + mItem->rect().height()))
-             || !(sceneRect().contains(
-                     mItem->scenePos().x() ,
-                     mItem->scenePos().y() )))
-        {
-            mItem->setPos(old);
-        }
-    }
-
-  //  QGraphicsScene::mouseMoveEvent(mouseEvent);
+		if ((this->collidingItems(mItem).isDetached())
+			|| !(sceneRect().contains(
+				mItem->scenePos().x() + mItem->rect().width(),
+				mItem->scenePos().y() + mItem->rect().height()))
+			|| !(sceneRect().contains(
+				mItem->scenePos().x() ,
+				mItem->scenePos().y() )))
+		{
+			mItem->setPos(old);
+		}
+	}
 }
 
 void MScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
-    mItem = NULL;
-    mdMouse.setX(0);
-    mdMouse.setY(0);
-    QGraphicsScene::mouseReleaseEvent(mouseEvent);
+	mItem = NULL;
+	mMouseDeltaPos.setX(0);
+	mMouseDeltaPos.setY(0);
+	QGraphicsScene::mouseReleaseEvent(mouseEvent);
 }
 
-void MScene::setmAddItem(int i)
+void MScene::setItemToAdd(int i)
 {
-    mAddItem = i;
+	mItemToAdd = i;
 }
 
-int MScene::getmAddItem()
+int MScene::itemToAdd() const
 {
-    return mAddItem;
+	return mItemToAdd;
 }

@@ -3,71 +3,70 @@
 #include "mainWindow.h"
 #include "scene.h"
 
-MWindow::MWindow()
+using namespace scene;
+
+MainWindow::MainWindow()
 {
-    scene = new MScene(this);
-    scene->setSceneRect(0, 0, 500, 500);
-    view = new QGraphicsView(scene);
+	mScene = new MScene(this);
+	mScene->setSceneRect(0, 0, 500, 500);
+	mView = new QGraphicsView(mScene);
 
-    QPushButton *mButChair = new QPushButton("Add chair");
-    QPushButton *mButTable = new QPushButton("Add table");
-    QPushButton *mButRem = new QPushButton("Remove");
-    QPushButton *mButClear = new QPushButton("Clear all");
+	QPushButton *chairButton = new QPushButton("Add chair");
+	QPushButton *tableButton = new QPushButton("Add table");
+	QPushButton *removeButton = new QPushButton("Remove");
+	QPushButton *clearButton = new QPushButton("Clear all");
 
-    QObject::connect(mButChair, SIGNAL(clicked()), this, SLOT(addChair()));
-    QObject::connect(mButTable, SIGNAL(clicked()), this, SLOT(addTable()));
-    QObject::connect(mButRem, SIGNAL(clicked()), this, SLOT(remObject()));
-    QObject::connect(mButClear, SIGNAL(clicked()), this, SLOT(clearScene()));
+	QObject::connect(chairButton, SIGNAL(clicked()), this, SLOT(addChair()));
+	QObject::connect(tableButton, SIGNAL(clicked()), this, SLOT(addTable()));
+	QObject::connect(removeButton, SIGNAL(clicked()), this, SLOT(removeObject()));
+	QObject::connect(clearButton, SIGNAL(clicked()), this, SLOT(clearScene()));
 
-    view->setRenderHint(QPainter::Antialiasing, true);
-    view->setCacheMode(QGraphicsView::CacheBackground);
-    view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
-    view->setFixedSize(502, 502);
+	mView->setRenderHint(QPainter::Antialiasing, true);
+	mView->setCacheMode(QGraphicsView::CacheBackground);
+	mView->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
+	mView->setFixedSize(502, 502);
 
-    //Layout setup
+	//Layout setup
 
-    QVBoxLayout *pvbxLayout1 = new QVBoxLayout;
-    QVBoxLayout *pvbxLayout2 = new QVBoxLayout;
-    QHBoxLayout *pvbxLayout3 = new QHBoxLayout;
-    pvbxLayout1->addWidget(view);
-    pvbxLayout2->addWidget(mButChair);
-    pvbxLayout2->addWidget(mButTable);
-    pvbxLayout2->addWidget(mButRem);
-    pvbxLayout2->addWidget(mButClear);
-    pvbxLayout2->addStretch();
-    pvbxLayout3->addLayout(pvbxLayout1);
-    pvbxLayout3->addLayout(pvbxLayout2);
+	QVBoxLayout *vLayout1 = new QVBoxLayout;
+	QVBoxLayout *vLayout2 = new QVBoxLayout;
+	QHBoxLayout *hLayout1 = new QHBoxLayout;
+	vLayout1->addWidget(mView);
+	vLayout2->addWidget(chairButton);
+	vLayout2->addWidget(tableButton);
+	vLayout2->addWidget(removeButton);
+	vLayout2->addWidget(clearButton);
+	vLayout2->addStretch();
+	hLayout1->addLayout(vLayout1);
+	hLayout1->addLayout(vLayout2);
 
-    QWidget *widget = new QWidget;
-    widget->setLayout(pvbxLayout3);
-    setCentralWidget(widget);
-
+	QWidget *widget = new QWidget;
+	widget->setLayout(hLayout1);
+	setCentralWidget(widget);
 }
 
-void MWindow::addChair()
+void MainWindow::addChair()
 {
-    scene->setmAddItem(1);
+	mScene->setItemToAdd(1);
 }
 
-void MWindow::addTable()
+void MainWindow::addTable()
 {
-    scene->setmAddItem(2);
+	mScene->setItemToAdd(2);
 }
 
-void MWindow::remObject()
+void MainWindow::removeObject()
 {
-    foreach (QGraphicsItem *item, scene->selectedItems()) {
-    scene->removeItem(item);
-    delete item;
-    }
+	foreach (QGraphicsItem *item, mScene->selectedItems()) {
+		mScene->removeItem(item);
+		delete item;
+	}
 }
 
-void MWindow::clearScene()
+void MainWindow::clearScene()
 {
-    foreach (QGraphicsItem *item, scene->items()) {
-    scene->removeItem(item);
-    delete item;
-    }
+	foreach (QGraphicsItem *item, mScene->items()) {
+		mScene->removeItem(item);
+		delete item;
+	}
 }
-
-

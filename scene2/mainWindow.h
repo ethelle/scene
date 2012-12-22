@@ -4,23 +4,27 @@
 #include <QMainWindow>
 
 #include "scene.h"
-class MWindow : public QMainWindow
-{
-    Q_OBJECT
 
-public:
-   MWindow();
+namespace scene {
 
-public slots:
-   void addChair();
-   void addTable();
-   void remObject();
-   void clearScene();
+	class MainWindow : public QMainWindow
+	{
+		Q_OBJECT
 
-protected:
+	public:
+		MainWindow();
 
-private:
-    MScene *scene;
-    QGraphicsView *view;
-};
+	protected:
 
+	private:
+		MScene *mScene;
+		QGraphicsView *mView;
+
+	private slots:
+		void addChair();
+		void addTable();
+		void removeObject();
+		void clearScene();
+	};
+
+}
